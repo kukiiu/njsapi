@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  njsapi:
+    image: njsapi:v1
+    restart: always
+    volumes:
+      - D:\project\njsapi:/usr/local/njsapi
+    ports:
+      - "80:80"
