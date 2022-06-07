@@ -1,51 +1,24 @@
 const fs = require('fs')
-let config = fs.readFileSync('./config/config.json', { encoding: 'utf-8' })
+const { resolve } = require('path')
+var templateEngine = require('art-template');
+
+const configPath = resolve(__dirname, '../config/config.json')
+const defaultConfigPath = resolve(__dirname, '../config/default_config.json')
+const configTemplatePath = resolve(__dirname, './config/template.art')
+const configOutputPath = resolve(__dirname, '../nginx.conf')
+
+const template = fs.readFileSync(configTemplatePath, { encoding: 'utf-8' })
+
+let config = fs.readFileSync(configPath, { encoding: 'utf-8' })
 config = JSON.parse(config)
 
-const conf = `
-user  nginx;
-worker_processes  auto;
+let defaultConfig = fs.readFileSync(defaultConfigPath, { encoding: 'utf-8' })
+defaultConfig = JSON.parse(defaultConfig)
 
-error_log  /var/log/nginx/error.log notice;
-pid        /var/run/nginx.pid;
+var render = templateEngine.compile(template, {
+    cache: false,
+})
+var nginxConfig = render({ ...config, ...defaultConfig })
 
-load_module modules/ngx_http_js_module.so;
-events {
-    worker_connections  1024;
-}
-
-http {
-    include       /etc/nginx/mime.types;
-    default_type  application/octet-stream;
-
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
-
-    access_log  /var/log/nginx/access.log  main;
-    error_log /var/log/nginx/error.log info;
-
-    sendfile        on;
-    #tcp_nopush     on;
-
-    keepalive_timeout  65;
-
-    #gzip  on;
-
-    js_path "/usr/local/njsapi/src/";
-    js_import init.js;
-    js_import main.js;
-
-    server {
-        listen 80;
-
-        location / {
-            js_content main;
-        }
-    }
-}
-`
-// const outputFile = '/etc/nginx/nginx.conf'
-const outputFile = '../nginx.conf'
-console.log("output file: " + outputFile)
-fs.writeFileSync(outputFile, conf)
+console.log("output file: " + configOutputPath)
+fs.writeFileSync(configOutputPath, nginxConfig)

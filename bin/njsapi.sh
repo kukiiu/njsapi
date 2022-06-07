@@ -10,11 +10,13 @@ npm run build
 
 cp -f /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 
-cp -f ../nginx.conf /etc/nginx/nginx.conf
+cp -f ./nginx.conf /etc/nginx/nginx.conf
 
 if [ -s '/var/run/nginx.pid' ]; then
+        echo 'nginx reload...'
         nginx -s reload
 else
+        echo 'nginx start...'
         nginx
 fi
 
