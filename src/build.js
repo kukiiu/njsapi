@@ -1,6 +1,7 @@
 const fs = require('fs')
 const { resolve } = require('path')
 var templateEngine = require('art-template');
+const merge = require('./config/merge')
 
 const configPath = resolve(__dirname, '../config/config.json')
 const defaultConfigPath = resolve(__dirname, '../config/default_config.json')
@@ -18,7 +19,7 @@ defaultConfig = JSON.parse(defaultConfig)
 var render = templateEngine.compile(template, {
     cache: false,
 })
-var nginxConfig = render({ ...config, ...defaultConfig })
+var nginxConfig = render(merge(config, defaultConfig))
 
 console.log("output file: " + configOutputPath)
 fs.writeFileSync(configOutputPath, nginxConfig)

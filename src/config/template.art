@@ -35,4 +35,29 @@ http {
             js_content main;
         }
     }
+
+    {{each servers}}
+    server {
+        listen {{ $value.listen }};
+        {{if $value.server_name}}server_name {{@ $value.server_name }};{{/if}}
+        
+        {{each $value.error_pages}}
+        error_page {{ $value }};
+        {{/each}}
+        
+        {{each $value.routes}}
+        location {{ $value.flag }} {{ $value.url }} {
+            {{each $value.headers}}
+            add_header {{ $value.key }} {{ $value.value }};
+            {{/each}}
+            {{if $value.path}}{{$value.alias === true ? 'alias' : 'root' }} {{ $value.path }}; {{/if}}
+            {{if $value.echo}}return 200 {{ $value.echo }}; {{/if}}
+            {{if $value.index}}index {{ $value.index }}; {{/if}}
+            {{each $value.error_pages}}
+            error_page {{ $value }};
+            {{/each}}
+        }
+        {{/each}}
+    }
+    {{/each}}
 }

@@ -1,15 +1,32 @@
 {
   "error_log_level": "notice",
-  "routes": [
-    {
-      "uri": "/hello"
-    }
-  ],
   "upstream": [
     {
       "nodes": {
         "url": "127.0.0.1:1980"
       }
+    }
+  ],
+  "servers": [
+    {
+      "site": "~^(www\\.)?(?<domain>.+)$",
+      "listen": 8080,
+      "routes": [
+        {
+          "url": "/",
+          "path": "/usr/local/njsapi/www"
+        }
+      ]
+    },
+    {
+      "listen": 8081,
+      "routes": [
+        {
+          "url": "/prefix_match/",
+          "prefix_match": true,
+          "echo": "prefix_match"
+        }
+      ]
     }
   ]
 }
